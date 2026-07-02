@@ -41,10 +41,10 @@ app.get('*', (req, res) => {
 // ─── START ───
 async function start() {
   await initDB();
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`\n🌾  Bole Animal Feed Processing Server`);
-    console.log(`🚀  Running at: http://localhost:${PORT}`);
-    console.log(`📦  API:        http://localhost:${PORT}/api`);
+    console.log(`🚀  Running at: http://0.0.0.0:${PORT}`);
+    console.log(`📦  API:        http://0.0.0.0:${PORT}/api`);
     console.log(`\n   Admin credentials:`);
     console.log(`   Username: admin | Password: bole2024`);
     console.log(`   Username: staff | Password: staff123\n`);

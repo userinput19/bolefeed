@@ -2,12 +2,16 @@
   "name": "bole-animal-feed-processing",
   "version": "1.0.0",
   "description": "Bole Animal Feed Processing - Official Website & Admin Dashboard",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
-    "install:all": "cd server && npm install && cd ../client && npm install",
-    "build": "cd client && npm run build",
-    "start": "cd server && node index.js",
-    "dev:server": "cd server && npm run dev",
-    "dev:client": "cd client && npm run dev",
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "build": "npm run build --prefix client",
+    "start": "node server/index.js",
+    "dev:server": "node server/index.js",
+    "dev:client": "npm run dev --prefix client",
     "setup": "npm run install:all && npm run build && echo '\n✅ Setup complete! Run: npm start\n'"
   },
   "keywords": ["animal-feed", "ethiopia", "poultry", "livestock"]
