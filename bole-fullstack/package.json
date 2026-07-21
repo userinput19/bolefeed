@@ -7,7 +7,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "install:all": "npm install --prefix server && npm install --prefix client",
+    "install:all": "npm install --production=false --prefix server && npm install --production=false --prefix client",
     "build": "npm run build --prefix client",
     "start": "node server/index.js",
     "dev:server": "node server/index.js",
