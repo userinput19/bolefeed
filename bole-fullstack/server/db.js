@@ -1,21 +1,97 @@
-const Datastore = require('nedb-promises');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs');
 
-const dbDir = path.join(__dirname, 'data');
-fs.mkdirSync(dbDir, { recursive: true });
+let db = {};
+let client = null;
 
-const db = {
-  users:     Datastore.create({ filename: path.join(dbDir, 'users.db'),     autoload: true }),
-  products:  Datastore.create({ filename: path.join(dbDir, 'products.db'),  autoload: true }),
-  orders:    Datastore.create({ filename: path.join(dbDir, 'orders.db'),    autoload: true }),
-  messages:  Datastore.create({ filename: path.join(dbDir, 'messages.db'),  autoload: true }),
-  inventory: Datastore.create({ filename: path.join(dbDir, 'inventory.db'), autoload: true }),
-  batches:   Datastore.create({ filename: path.join(dbDir, 'batches.db'),   autoload: true }),
-  settings:  Datastore.create({ filename: path.join(dbDir, 'settings.db'),  autoload: true }),
-  counters:  Datastore.create({ filename: path.join(dbDir, 'counters.db'),  autoload: true }),
-};
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (MONGODB_URI) {
+  const { MongoClient } = require('mongodb');
+  client = new MongoClient(MONGODB_URI);
+  const mongoDb = client.db();
+
+  class MongoNeDBWrapper {
+    constructor(collection) {
+      this.col = collection;
+    }
+    find(query) {
+      const cursor = this.col.find(query);
+      const chain = {
+        sort: (sortObj) => {
+          cursor.sort(sortObj);
+          return chain;
+        },
+        limit: (num) => {
+          cursor.limit(num);
+          return chain;
+        },
+        then: (onfulfilled, onrejected) => {
+          return cursor.toArray().then(onfulfilled, onrejected);
+        }
+      };
+      return chain;
+    }
+    async findOne(query) {
+      return await this.col.findOne(query);
+    }
+    async insert(docs) {
+      if (Array.isArray(docs)) {
+        const res = await this.col.insertMany(docs);
+        return docs.map((doc, idx) => ({ ...doc, _id: res.insertedIds[idx] }));
+      } else {
+        const res = await this.col.insertOne(docs);
+        return { ...docs, _id: res.insertedId };
+      }
+    }
+    async update(query, update, options = {}) {
+      const mongoOptions = {};
+      if (options.upsert) mongoOptions.upsert = true;
+      if (options.multi) {
+        return await this.col.updateMany(query, update, mongoOptions);
+      } else {
+        return await this.col.updateOne(query, update, mongoOptions);
+      }
+    }
+    async remove(query, options = {}) {
+      if (options.multi) {
+        return await this.col.deleteMany(query);
+      } else {
+        return await this.col.deleteOne(query);
+      }
+    }
+    async count(query) {
+      return await this.col.countDocuments(query);
+    }
+  }
+
+  db = {
+    users:     new MongoNeDBWrapper(mongoDb.collection('users')),
+    products:  new MongoNeDBWrapper(mongoDb.collection('products')),
+    orders:    new MongoNeDBWrapper(mongoDb.collection('orders')),
+    messages:  new MongoNeDBWrapper(mongoDb.collection('messages')),
+    inventory: new MongoNeDBWrapper(mongoDb.collection('inventory')),
+    batches:   new MongoNeDBWrapper(mongoDb.collection('batches')),
+    settings:  new MongoNeDBWrapper(mongoDb.collection('settings')),
+    counters:  new MongoNeDBWrapper(mongoDb.collection('counters')),
+  };
+} else {
+  const Datastore = require('nedb-promises');
+  const dbDir = path.join(__dirname, 'data');
+  fs.mkdirSync(dbDir, { recursive: true });
+
+  db = {
+    users:     Datastore.create({ filename: path.join(dbDir, 'users.db'),     autoload: true }),
+    products:  Datastore.create({ filename: path.join(dbDir, 'products.db'),  autoload: true }),
+    orders:    Datastore.create({ filename: path.join(dbDir, 'orders.db'),    autoload: true }),
+    messages:  Datastore.create({ filename: path.join(dbDir, 'messages.db'),  autoload: true }),
+    inventory: Datastore.create({ filename: path.join(dbDir, 'inventory.db'), autoload: true }),
+    batches:   Datastore.create({ filename: path.join(dbDir, 'batches.db'),   autoload: true }),
+    settings:  Datastore.create({ filename: path.join(dbDir, 'settings.db'),  autoload: true }),
+    counters:  Datastore.create({ filename: path.join(dbDir, 'counters.db'),  autoload: true }),
+  };
+}
 
 async function nextId(name) {
   const doc = await db.counters.findOne({ _id: name });
@@ -25,6 +101,12 @@ async function nextId(name) {
 }
 
 async function initDB() {
+  if (MONGODB_URI && client) {
+    console.log('Connecting to MongoDB Atlas...');
+    await client.connect();
+    console.log('Connected successfully to MongoDB');
+  }
+
   // Seed admin users
   const adminExists = await db.users.findOne({ username: 'admin' });
   if (!adminExists) {

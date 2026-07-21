@@ -1,40 +1,50 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Phone, MapPin, Clock } from 'lucide-react';
+import { Menu, X, Phone, MapPin, Clock, Globe } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { t, lang, toggleLanguage } = useLanguage();
 
   const links = [
-    { to: '/', label: 'Home' },
-    { to: '/products', label: 'Products' },
-    { to: '/about', label: 'About Us' },
-    { to: '/contact', label: 'Contact' },
-    { to: '/track', label: 'Track Order' },
+    { to: '/', label: t('navHome') },
+    { to: '/products', label: t('navProducts') },
+    { to: '/about', label: t('navAbout') },
+    { to: '/contact', label: t('navContact') },
+    { to: '/track', label: t('navTrack') },
   ];
 
   return (
     <nav className="bg-green-900 sticky top-0 z-50 shadow-xl">
       {/* Top bar */}
-      <div className="bg-green-950 text-white/60 text-xs py-1.5 px-4 hidden md:block">
+      <div className="bg-green-950 text-white/70 text-xs py-1.5 px-4 hidden md:block border-b border-white/5">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <span className="flex items-center gap-1.5"><Phone size={11} /> +251 939 277 772</span>
-            <span className="flex items-center gap-1.5"><MapPin size={11} /> Bole Michael, Addis Ababa</span>
+            <span className="flex items-center gap-1.5"><Phone size={11} className="text-gold-400" /> {t('phoneHeader')}</span>
+            <span className="flex items-center gap-1.5"><MapPin size={11} className="text-gold-400" /> {t('locationHeader')}</span>
           </div>
-          <span className="flex items-center gap-1.5"><Clock size={11} /> Mon–Sat: 8AM–6PM</span>
+          <div className="flex items-center gap-5">
+            <span className="flex items-center gap-1.5"><Clock size={11} className="text-gold-400" /> {t('hoursHeader')}</span>
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 bg-gold-600/30 hover:bg-gold-600/50 text-gold-300 border border-gold-500/40 px-2.5 py-0.5 rounded-full font-semibold text-[11px] transition-all hover:scale-105"
+            >
+              <Globe size={11} /> {lang === 'en' ? '🇪🇹 አማርኛ' : '🇺🇸 English'}
+            </button>
+          </div>
         </div>
       </div>
       {/* Main nav */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gold-700 rounded-full flex items-center justify-center text-xl shadow-lg group-hover:bg-gold-500 transition-colors">🐄</div>
+            <div className="w-10 h-10 bg-gold-600 rounded-full flex items-center justify-center text-xl shadow-lg group-hover:bg-gold-500 transition-colors">🐄</div>
             <div>
-              <div className="text-white font-heading font-black text-sm leading-tight">Bole Animal Feed</div>
-              <div className="text-gold-300 text-[10px] font-medium tracking-widest uppercase">Processing PLC</div>
+              <div className="text-white font-heading font-black text-sm leading-tight">{t('companyName')}</div>
+              <div className="text-gold-300 text-[10px] font-medium tracking-widest uppercase">{t('companySubtitle')}</div>
             </div>
           </Link>
 
@@ -42,22 +52,38 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-1">
             {links.map(l => (
               <Link key={l.to} to={l.to}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  pathname === l.to ? 'bg-white/15 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'
+                className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                  pathname === l.to ? 'bg-white/15 text-white font-bold' : 'text-white/80 hover:bg-white/10 hover:text-white'
                 }`}>
                 {l.label}
               </Link>
             ))}
+            
+            <button
+              onClick={toggleLanguage}
+              className="ml-2 flex items-center gap-1 bg-white/10 hover:bg-white/20 text-gold-300 font-bold px-3 py-1.5 rounded-lg text-xs transition-all border border-gold-500/30"
+            >
+              <Globe size={13} /> {lang === 'en' ? 'አማርኛ' : 'English'}
+            </button>
+
             <button onClick={() => navigate('/products')}
-              className="ml-3 bg-gold-700 hover:bg-gold-500 text-white font-bold px-5 py-2 rounded-lg text-sm transition-all">
-              Order Now
+              className="ml-2 bg-gold-600 hover:bg-gold-500 text-white font-bold px-5 py-2 rounded-lg text-sm transition-all shadow-md hover:scale-105">
+              {t('navOrderNow')}
             </button>
           </div>
 
           {/* Mobile */}
-          <button className="md:hidden text-white p-2" onClick={() => setOpen(!open)}>
-            {open ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 bg-gold-600/30 text-gold-300 font-bold px-2.5 py-1 rounded-lg text-xs border border-gold-500/40"
+            >
+              {lang === 'en' ? '🇪🇹' : '🇺🇸'}
+            </button>
+            <button className="text-white p-2" onClick={() => setOpen(!open)}>
+              {open ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
@@ -70,8 +96,8 @@ export function Navbar() {
               </Link>
             ))}
             <button onClick={() => { navigate('/products'); setOpen(false); }}
-              className="w-full mt-2 bg-gold-700 text-white font-bold py-3 rounded-lg text-sm">
-              Order Now
+              className="w-full mt-2 bg-gold-600 text-white font-bold py-3 rounded-lg text-sm">
+              {t('navOrderNow')}
             </button>
           </div>
         )}

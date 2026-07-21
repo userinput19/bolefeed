@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
-import { Search, Filter, RefreshCw, X, Phone, MapPin, Package } from 'lucide-react';
+import { Search, RefreshCw, X, Phone, MapPin, Package, Printer } from 'lucide-react';
+import InvoiceModal from '../../components/InvoiceModal';
 
 const STATUSES = ['','pending','confirmed','processing','delivered','cancelled'];
-const PAY_STATUSES = ['','unpaid','partial','paid'];
 const STATUS_BADGE = { pending:'badge-pending', confirmed:'badge-confirmed', processing:'badge-processing', delivered:'badge-delivered', cancelled:'badge-cancelled' };
 const PAY_BADGE = { paid:'badge-paid', unpaid:'badge-unpaid', partial:'badge-partial' };
 
@@ -17,6 +17,7 @@ export default function AdminOrders() {
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+  const [printOrder, setPrintOrder] = useState(null);
   const [updating, setUpdating] = useState(false);
 
   const fetchOrders = useCallback(async () => {
@@ -51,10 +52,10 @@ export default function AdminOrders() {
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="font-heading font-black text-2xl text-gray-800">Orders</h1>
-            <p className="text-gray-500 text-sm mt-1">Manage and track all customer orders.</p>
+            <h1 className="font-heading font-black text-2xl text-gray-800">Orders Management</h1>
+            <p className="text-gray-500 text-sm mt-1">Manage, fulfill, and print invoices for customer feed orders.</p>
           </div>
-          <button onClick={fetchOrders} className="flex items-center gap-2 text-sm text-gray-500 hover:text-green-700 transition-colors">
+          <button onClick={fetchOrders} className="flex items-center gap-2 text-sm text-gray-500 hover:text-green-700 transition-colors bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
             <RefreshCw size={15} /> Refresh
           </button>
         </div>
@@ -96,7 +97,7 @@ export default function AdminOrders() {
                   <th className="table-th">Date</th>
                   <th className="table-th">Status</th>
                   <th className="table-th">Payment</th>
-                  <th className="table-th">Action</th>
+                  <th className="table-th text-right">Invoice & Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -117,12 +118,21 @@ export default function AdminOrders() {
                     <td className="table-td text-xs text-gray-500">{new Date(o.created_at).toLocaleDateString()}</td>
                     <td className="table-td"><span className={`badge ${STATUS_BADGE[o.status]||''}`}>{o.status}</span></td>
                     <td className="table-td"><span className={`badge ${PAY_BADGE[o.payment_status]||''}`}>{o.payment_status}</span></td>
-                    <td className="table-td" onClick={e => e.stopPropagation()}>
-                      <select className="admin-input text-xs py-1"
-                        value={o.status}
-                        onChange={e => updateOrder(o.id, { status: e.target.value })}>
-                        {['pending','confirmed','processing','delivered','cancelled'].map(s=><option key={s}>{s}</option>)}
-                      </select>
+                    <td className="table-td text-right" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setPrintOrder(o)}
+                          className="bg-green-100 hover:bg-green-200 text-green-900 p-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1"
+                          title="Print Sales Invoice"
+                        >
+                          <Printer size={14} /> Print
+                        </button>
+                        <select className="admin-input text-xs py-1"
+                          value={o.status}
+                          onChange={e => updateOrder(o.id, { status: e.target.value })}>
+                          {['pending','confirmed','processing','delivered','cancelled'].map(s=><option key={s}>{s}</option>)}
+                        </select>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -141,9 +151,17 @@ export default function AdminOrders() {
                 <h2 className="font-heading font-black text-xl text-gray-800">{selected.order_ref}</h2>
                 <p className="text-gray-500 text-sm">{new Date(selected.created_at).toLocaleString()}</p>
               </div>
-              <button onClick={() => setSelected(null)} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">
-                <X size={16} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPrintOrder(selected)}
+                  className="btn-primary py-2 px-3 text-xs font-bold flex items-center gap-1.5 shadow"
+                >
+                  <Printer size={15} /> Print Invoice
+                </button>
+                <button onClick={() => setSelected(null)} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">
+                  <X size={16} />
+                </button>
+              </div>
             </div>
             <div className="p-6 space-y-5">
               {/* Customer */}
@@ -158,12 +176,19 @@ export default function AdminOrders() {
 
               {/* Order details */}
               <div className="bg-gray-50 rounded-2xl p-4">
-                <div className="font-bold text-sm text-gray-700 mb-3">Order Details</div>
+                <div className="font-bold text-sm text-gray-700 mb-3">Order & Payment Info</div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-start gap-2"><Package size={13} className="text-gray-400 mt-0.5" /><span className="font-semibold">{selected.product_name}</span></div>
                   <div className="flex justify-between"><span className="text-gray-500">Quantity</span><span className="font-bold">{selected.quantity} bag(s)</span></div>
                   <div className="flex justify-between"><span className="text-gray-500">Unit Price</span><span>{selected.unit_price?.toLocaleString()} ETB</span></div>
                   <div className="flex justify-between font-black text-green-900 text-base pt-1 border-t border-gray-200"><span>Total</span><span>{selected.total_price?.toLocaleString()} ETB</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500">Payment Method</span><span className="font-semibold uppercase">{selected.payment_method || 'Cash'}</span></div>
+                  {selected.payment_txn_ref && (
+                    <div className="flex justify-between bg-amber-50 p-2 rounded-lg border border-amber-200">
+                      <span className="text-amber-900 font-semibold">Txn Ref Code</span>
+                      <span className="font-mono font-bold text-amber-900">{selected.payment_txn_ref}</span>
+                    </div>
+                  )}
                   {selected.delivery_address && <div className="flex items-start gap-2"><MapPin size={13} className="text-gray-400 mt-0.5" /><span>{selected.delivery_method === 'pickup' ? 'Pickup from Bole Michael' : selected.delivery_address}</span></div>}
                   {selected.notes && <div className="text-gray-500 italic">Note: {selected.notes}</div>}
                 </div>
@@ -190,7 +215,7 @@ export default function AdminOrders() {
                     <label className="label">Payment Method</label>
                     <select className="admin-input w-full" value={selected.payment_method}
                       onChange={e => { setSelected({...selected,payment_method:e.target.value}); updateOrder(selected.id,{payment_method:e.target.value}); }}>
-                      {['cash','bank_transfer','mobile_money'].map(s=><option key={s} value={s}>{s.replace('_',' ')}</option>)}
+                      {['telebirr','cbe','cash','bank_transfer'].map(s=><option key={s} value={s}>{s.toUpperCase()}</option>)}
                     </select>
                   </div>
                 </div>
@@ -204,6 +229,11 @@ export default function AdminOrders() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Invoice Printable Modal */}
+      {printOrder && (
+        <InvoiceModal order={printOrder} onClose={() => setPrintOrder(null)} />
       )}
     </AdminLayout>
   );

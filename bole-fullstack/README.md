@@ -145,6 +145,11 @@ For production deployment:
 4. Use a process manager like PM2: `pm2 start server/index.js --name bole-feed`
 5. Optionally use Nginx as a reverse proxy on port 80/443
 
+### 💾 Database Persistence (NeDB)
+Since NeDB is a file-based database stored in `server/data/`, deploying to platforms with ephemeral filesystems (like Render or Heroku) will cause data loss on service restarts/redeploys.
+* **On Render:** You must use a paid plan (e.g., **Starter** tier or higher) that supports **Persistent Disks**. Map a 1GB persistent disk volume to mount path `/opt/render/project/src/server/data` (as pre-configured in `render.yaml`).
+* **Alternative:** If you wish to use a free hosting tier, migrate the database logic in `server/db.js` and routes to connect to a cloud MongoDB Atlas instance instead of local NeDB files.
+
 ---
 
 *Built for Bole Animal Feed Processing PLC — Quality Feed for Better Results 🇪🇹*

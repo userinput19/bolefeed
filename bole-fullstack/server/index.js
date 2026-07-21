@@ -8,9 +8,33 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ─── MIDDLEWARE ───
+const { rateLimit } = require('express-rate-limit');
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' }
+});
+
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests to this endpoint, please try again later.' }
+});
+
 app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Apply rate limiters
+app.use('/api/auth/login', strictLimiter);
+app.post('/api/orders', strictLimiter);
+app.post('/api/messages', strictLimiter);
+app.use('/api', apiLimiter);
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -2,6 +2,40 @@ const router = require('express').Router();
 const { db, nextId } = require('../db');
 const { auth, adminOnly } = require('../middleware/auth');
 
+function maskPhone(phone) {
+  if (!phone) return '';
+  const clean = phone.trim();
+  if (clean.length <= 4) return '****';
+  if (clean.length > 7) {
+    return clean.slice(0, 7) + '*'.repeat(clean.length - 9) + clean.slice(-2);
+  }
+  return clean.slice(0, 2) + '*'.repeat(clean.length - 4) + clean.slice(-2);
+}
+
+function maskEmail(email) {
+  if (!email) return '';
+  const clean = email.trim();
+  const parts = clean.split('@');
+  if (parts.length !== 2) return '***';
+  const [local, domain] = parts;
+  if (local.length <= 2) return '**@' + domain;
+  return local.slice(0, 2) + '***' + local.slice(-1) + '@' + domain;
+}
+
+function maskAddress(addr) {
+  if (!addr) return '';
+  const clean = addr.trim();
+  if (clean.length <= 6) return '***';
+  return clean.slice(0, 4) + '***' + clean.slice(-4);
+}
+
+function maskTxnRef(ref) {
+  if (!ref) return '';
+  const clean = ref.trim();
+  if (clean.length <= 4) return '***';
+  return clean.slice(0, 3) + '***' + clean.slice(-2);
+}
+
 // Public: Place order
 router.post('/', async (req, res) => {
   try {
@@ -28,9 +62,10 @@ router.post('/', async (req, res) => {
       delivery_method: req.body.delivery_method || 'delivery',
       delivery_address: (req.body.delivery_address || '').trim(),
       notes: (req.body.notes || '').trim(),
-      payment_method: req.body.payment_method || 'cash',
+      payment_method: req.body.payment_method || 'telebirr',
+      payment_txn_ref: (req.body.payment_txn_ref || '').trim(),
       status: 'pending',
-      payment_status: 'unpaid',
+      payment_status: req.body.payment_txn_ref ? 'paid' : 'unpaid',
       admin_notes: '',
       created_at: now, updated_at: now
     };
@@ -38,10 +73,7 @@ router.post('/', async (req, res) => {
     await db.products.update({ id: parseInt(product_id) }, {
       $set: { stock_qty: product.stock_qty - parseInt(quantity), updated_at: now }
     });
-    res.status(201).json({
-      order_ref, total_price: order.total_price,
-      message: 'Order placed successfully! We will contact you within 2 hours to confirm.'
-    });
+    res.status(201).json(order);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Server error' });
@@ -53,7 +85,16 @@ router.get('/track/:ref', async (req, res) => {
   try {
     const order = await db.orders.findOne({ order_ref: req.params.ref.toUpperCase() });
     if (!order) return res.status(404).json({ error: 'Order not found. Please check the reference number.' });
-    const { customer_email, admin_notes, ...safe } = order;
+    
+    const safe = {
+      ...order,
+      customer_phone: maskPhone(order.customer_phone),
+      customer_email: maskEmail(order.customer_email),
+      delivery_address: maskAddress(order.delivery_address),
+      payment_txn_ref: maskTxnRef(order.payment_txn_ref)
+    };
+    delete safe.admin_notes;
+    
     res.json(safe);
   } catch (e) { res.status(500).json({ error: 'Server error' }); }
 });
