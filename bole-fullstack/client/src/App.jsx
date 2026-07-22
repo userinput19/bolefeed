@@ -5,6 +5,7 @@ import { useAuth } from './context/AuthContext';
 import HomePage from './pages/public/HomePage';
 import { ProductsPage, ProductDetailPage } from './pages/public/ProductsPage';
 import { AboutPage, ContactPage, TrackOrderPage } from './pages/public/OtherPages';
+import AiWritePage from './pages/public/AiWritePage';
 
 // Admin pages
 import AdminLoginPage from './pages/admin/AdminLogin';
@@ -38,6 +39,7 @@ export default function App() {
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/track" element={<TrackOrderPage />} />
+      <Route path="/ai-write" element={<AiWritePage />} />
 
       {/* ── Admin Routes ── */}
       <Route path="/admin/login" element={<AdminLoginPage />} />

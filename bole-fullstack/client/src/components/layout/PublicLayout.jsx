@@ -12,6 +12,7 @@ export function Navbar() {
   const links = [
     { to: '/', label: t('navHome') },
     { to: '/products', label: t('navProducts') },
+    { to: '/ai-write', label: t('navAiWrite') },
     { to: '/about', label: t('navAbout') },
     { to: '/contact', label: t('navContact') },
     { to: '/track', label: t('navTrack') },
@@ -152,6 +153,7 @@ export function Footer() {
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-white/40">
           <span>© {new Date().getFullYear()} Bole Animal Feed Processing PLC. All rights reserved.</span>
           <div className="flex items-center gap-4">
+            <Link to="/ai-write" className="hover:text-white/70 transition-colors">{t('navAiWrite')}</Link>
             <Link to="/track" className="hover:text-white/70 transition-colors">Track Order</Link>
             <Link to="/admin/login" className="hover:text-white/70 transition-colors">Staff Login</Link>
             <span>🇪🇹 Addis Ababa, Ethiopia</span>
