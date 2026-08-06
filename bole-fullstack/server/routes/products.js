@@ -45,7 +45,10 @@ router.post('/', auth, async (req, res) => {
 router.put('/:id', auth, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    await db.products.update({ id }, { $set: { ...req.body, updated_at: new Date().toISOString() } });
+    const updateData = { ...req.body };
+    delete updateData._id;
+    delete updateData.id;
+    await db.products.update({ id }, { $set: { ...updateData, updated_at: new Date().toISOString() } });
     res.json(await db.products.findOne({ id }));
   } catch (e) { res.status(500).json({ error: 'Server error' }); }
 });

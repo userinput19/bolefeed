@@ -41,7 +41,10 @@ messagesRouter.get('/', auth, async (req, res) => {
 messagesRouter.put('/:id', auth, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    await db.messages.update({ id }, { $set: req.body });
+    const updateData = { ...req.body };
+    delete updateData._id;
+    delete updateData.id;
+    await db.messages.update({ id }, { $set: updateData });
     res.json(await db.messages.findOne({ id }));
   } catch (e) { res.status(500).json({ error: 'Server error' }); }
 });
@@ -128,41 +131,42 @@ dashboardRouter.get('/', auth, async (req, res) => {
       db.products.find({ active: true }),
       db.messages.count({ read: false })
     ]);
-    const paid_orders = allOrders.filter(o => o.payment_status === 'paid');
-    const total_revenue = paid_orders.reduce((s, o) => s + o.total_price, 0);
-    const pending_revenue = allOrders.filter(o => o.payment_status !== 'paid' && o.status !== 'cancelled').reduce((s, o) => s + o.total_price, 0);
+    const paid_orders = allOrders.filter(o => o && o.payment_status === 'paid');
+    const total_revenue = paid_orders.reduce((s, o) => s + (o.total_price || 0), 0);
+    const pending_revenue = allOrders.filter(o => o && o.payment_status !== 'paid' && o.status !== 'cancelled').reduce((s, o) => s + (o.total_price || 0), 0);
 
     // Sales by product
     const pmap = {};
-    allOrders.filter(o => o.status !== 'cancelled').forEach(o => {
-      if (!pmap[o.product_name]) pmap[o.product_name] = { product_name: o.product_name, total_qty: 0, total_revenue: 0, order_count: 0 };
-      pmap[o.product_name].total_qty += o.quantity;
-      pmap[o.product_name].total_revenue += o.total_price;
-      pmap[o.product_name].order_count++;
+    allOrders.filter(o => o && o.status !== 'cancelled').forEach(o => {
+      const pName = o.product_name || 'Unknown Product';
+      if (!pmap[pName]) pmap[pName] = { product_name: pName, total_qty: 0, total_revenue: 0, order_count: 0 };
+      pmap[pName].total_qty += (o.quantity || 0);
+      pmap[pName].total_revenue += (o.total_price || 0);
+      pmap[pName].order_count++;
     });
 
     // Monthly sales (last 6 months)
     const mmap = {};
-    allOrders.filter(o => o.status !== 'cancelled').forEach(o => {
-      const m = o.created_at.slice(0, 7);
+    allOrders.filter(o => o && o.status !== 'cancelled').forEach(o => {
+      const m = (o.created_at || '').slice(0, 7) || 'Unknown';
       if (!mmap[m]) mmap[m] = { month: m, order_count: 0, bags: 0, revenue: 0 };
       mmap[m].order_count++;
-      mmap[m].bags += o.quantity;
-      mmap[m].revenue += o.total_price;
+      mmap[m].bags += (o.quantity || 0);
+      mmap[m].revenue += (o.total_price || 0);
     });
 
     res.json({
       total_orders: allOrders.length,
-      pending_orders: allOrders.filter(o => o.status === 'pending').length,
-      confirmed_orders: allOrders.filter(o => ['confirmed', 'processing'].includes(o.status)).length,
-      delivered_orders: allOrders.filter(o => o.status === 'delivered').length,
-      cancelled_orders: allOrders.filter(o => o.status === 'cancelled').length,
+      pending_orders: allOrders.filter(o => o && o.status === 'pending').length,
+      confirmed_orders: allOrders.filter(o => o && ['confirmed', 'processing'].includes(o.status)).length,
+      delivered_orders: allOrders.filter(o => o && o.status === 'delivered').length,
+      cancelled_orders: allOrders.filter(o => o && o.status === 'cancelled').length,
       total_revenue, pending_revenue,
       unread_messages: unreadCount,
       total_products: allProducts.length,
-      low_stock: allProducts.filter(p => p.stock_qty <= p.min_stock_alert).length,
-      total_bags_sold: allOrders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.quantity, 0),
-      recent_orders: [...allOrders].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 8),
+      low_stock: allProducts.filter(p => p && p.stock_qty <= p.min_stock_alert).length,
+      total_bags_sold: allOrders.filter(o => o && o.status !== 'cancelled').reduce((s, o) => s + (o.quantity || 0), 0),
+      recent_orders: [...allOrders].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')).slice(0, 8),
       sales_by_product: Object.values(pmap).sort((a, b) => b.total_qty - a.total_qty),
       monthly_sales: Object.values(mmap).sort((a, b) => a.month.localeCompare(b.month)).slice(-6),
     });

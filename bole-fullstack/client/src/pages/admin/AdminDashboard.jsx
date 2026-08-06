@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/layout/AdminLayout';
 import api from '../../api/client';
+import toast from 'react-hot-toast';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
@@ -14,14 +15,32 @@ const COLORS = ['#1B4D2E','#2D7A47','#C8920A','#F0B429','#6ec96f'];
 export default function AdminDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    api.get('/dashboard').then(r => { setData(r.data); setLoading(false); });
+    api.get('/dashboard')
+      .then(r => { setData(r.data); setLoading(false); })
+      .catch(err => {
+        console.error(err);
+        setError(err.response?.data?.error || 'Failed to load dashboard data');
+        toast.error('Failed to load dashboard data');
+        setLoading(false);
+      });
   }, []);
 
   if (loading) return (
     <AdminLayout>
       <div className="flex items-center justify-center h-96 text-gray-400">Loading dashboard...</div>
+    </AdminLayout>
+  );
+
+  if (error) return (
+    <AdminLayout>
+      <div className="flex flex-col items-center justify-center h-96 text-center">
+        <div className="text-red-500 text-3xl mb-3">⚠️</div>
+        <div className="text-red-600 font-bold mb-2">{error}</div>
+        <button onClick={() => window.location.reload()} className="btn-secondary px-4 py-2 text-xs">Retry</button>
+      </div>
     </AdminLayout>
   );
 
