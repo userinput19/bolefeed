@@ -108,6 +108,7 @@ export function Navbar() {
 }
 
 export function Footer() {
+  const { t } = useLanguage();
   return (
     <footer className="bg-green-950 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
