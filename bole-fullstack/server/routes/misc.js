@@ -1,6 +1,7 @@
 const express = require('express');
 const { db, nextId } = require('../db');
 const { auth, adminOnly } = require('../middleware/auth');
+const { sendAdminMessageAlert } = require('../utils/email');
 
 const messagesRouter = express.Router();
 const inventoryRouter = express.Router();
@@ -15,14 +16,19 @@ messagesRouter.post('/', async (req, res) => {
     const { name, phone, message } = req.body;
     if (!name || !phone || !message) return res.status(400).json({ error: 'Name, phone and message required' });
     const id = await nextId('messages');
-    await db.messages.insert({
+    const msgObj = {
       id, name: name.trim(), phone: phone.trim(),
       email: (req.body.email || '').trim(),
       subject: req.body.subject || 'General Inquiry',
       message: message.trim(),
       read: false, replied: false,
       created_at: new Date().toISOString()
-    });
+    };
+    await db.messages.insert(msgObj);
+
+    // Send email alert to admin asynchronously
+    sendAdminMessageAlert(msgObj).catch(err => console.error('Admin message alert email failed:', err));
+
     res.status(201).json({ success: true, message: 'Message sent! We will get back to you shortly.' });
   } catch (e) { res.status(500).json({ error: 'Server error' }); }
 });

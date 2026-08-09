@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { db, nextId } = require('../db');
 const { auth, adminOnly } = require('../middleware/auth');
+const { sendOrderConfirmation, sendAdminOrderAlert } = require('../utils/email');
 
 function maskPhone(phone) {
   if (!phone) return '';
@@ -73,6 +74,11 @@ router.post('/', async (req, res) => {
     await db.products.update({ id: parseInt(product_id) }, {
       $set: { stock_qty: product.stock_qty - parseInt(quantity), updated_at: now }
     });
+
+    // Send email notifications asynchronously
+    sendOrderConfirmation(order).catch(err => console.error('Order confirmation email failed:', err));
+    sendAdminOrderAlert(order).catch(err => console.error('Admin order alert email failed:', err));
+
     res.status(201).json(order);
   } catch (e) {
     console.error(e);
