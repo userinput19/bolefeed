@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PublicLayout } from '../../components/layout/PublicLayout';
 import api from '../../api/client';
-import { ShieldCheck, Sprout, Package, TrendingUp, Truck, Headphones } from 'lucide-react';
+import { ShieldCheck, Sprout, Package, TrendingUp, Truck, Headphones, Phone } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function HomePage() {
