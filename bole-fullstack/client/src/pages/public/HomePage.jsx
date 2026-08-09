@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PublicLayout } from '../../components/layout/PublicLayout';
 import api from '../../api/client';
-import { Phone } from 'lucide-react';
+import { ShieldCheck, Sprout, Package, TrendingUp, Truck, Headphones } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function HomePage() {
@@ -14,12 +14,12 @@ export default function HomePage() {
   }, []);
 
   const benefitsList = [
-    { icon: '🔬', title: t('protein') + ' & Analysis', desc: 'Lab-tested for protein, fiber, fat, calcium, moisture and metabolizable energy content.' },
-    { icon: '🌽', title: 'Quality Ingredients', desc: 'Made from premium locally sourced grains, minerals and supplements for maximum value.' },
-    { icon: '📦', title: 'Batch Tracking', desc: 'Clear batch numbers and manufacturing dates. 6-month shelf life guaranteed.' },
-    { icon: '🥚', title: 'Proven Results', desc: 'Supports high egg production, strong eggshell formation, and rapid weight gain.' },
-    { icon: '🚚', title: 'Delivery Service', desc: 'Fast delivery across Addis Ababa and surrounding regions for commercial farms.' },
-    { icon: '📞', title: 'Expert Support', desc: 'Our team provides feeding recommendations tailored to your flock\'s age.' },
+    { icon: ShieldCheck, title: t('protein') + ' & Analysis', desc: 'Lab-tested for protein, fiber, fat, calcium, moisture and metabolizable energy content.', color: 'bg-blue-50 text-blue-600 border-blue-100' },
+    { icon: Sprout, title: 'Quality Ingredients', desc: 'Made from premium locally sourced grains, minerals and supplements for maximum value.', color: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
+    { icon: Package, title: 'Batch Tracking', desc: 'Clear batch numbers and manufacturing dates. 6-month shelf life guaranteed.', color: 'bg-amber-50 text-amber-600 border-amber-100' },
+    { icon: TrendingUp, title: 'Proven Results', desc: 'Supports high egg production, strong eggshell formation, and rapid weight gain.', color: 'bg-purple-50 text-purple-600 border-purple-100' },
+    { icon: Truck, title: 'Delivery Service', desc: 'Fast delivery across Addis Ababa and surrounding regions for commercial farms.', color: 'bg-rose-50 text-rose-600 border-rose-100' },
+    { icon: Headphones, title: 'Expert Support', desc: 'Our team provides feeding recommendations tailored to your flock\'s age.', color: 'bg-cyan-50 text-cyan-600 border-cyan-100' },
   ];
 
   const stepsList = [
@@ -150,10 +150,14 @@ export default function HomePage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {benefitsList.map(b => (
-              <div key={b.title} className="bg-white rounded-2xl p-7 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 border border-gray-100">
-                <div className="text-4xl mb-4">{b.icon}</div>
-                <h3 className="font-heading font-bold text-green-950 text-lg mb-2">{b.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{b.desc}</p>
+              <div key={b.title} className="bg-white rounded-2xl p-7 shadow-sm hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 border border-gray-100 flex gap-5 items-start">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border ${b.color}`}>
+                  <b.icon size={22} />
+                </div>
+                <div>
+                  <h3 className="font-heading font-black text-green-950 text-base mb-1.5">{b.title}</h3>
+                  <p className="text-gray-500 text-xs leading-relaxed">{b.desc}</p>
+                </div>
               </div>
             ))}
           </div>
