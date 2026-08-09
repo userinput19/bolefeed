@@ -51,11 +51,19 @@ export function ProductsPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filtered.map(p => (
                 <div key={p.id} className="card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                  <div className="bg-gradient-to-br from-green-900 to-green-700 p-8 text-center">
-                    <div className="text-6xl mb-3">{p.emoji}</div>
-                    <h3 className="font-heading font-black text-white text-lg mb-1">{p.name}</h3>
-                    <div className="text-white/70 text-sm mb-3">{p.target_animal}</div>
-                    <span className="bg-gold-600 text-white text-sm font-bold px-4 py-1.5 rounded-full">{p.weight_kg} KG</span>
+                  <div className="relative h-48 overflow-hidden flex items-center justify-center">
+                    <img 
+                      src={p.category.includes('Dairy') ? '/images/dairy_feed.jpg' : '/images/poultry_feed.jpg'} 
+                      alt={p.name}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-green-950 via-green-950/40 to-transparent" />
+                    <div className="absolute bottom-4 left-4 right-4 text-left z-10">
+                      <span className="bg-gold-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-1.5 inline-block">{p.category}</span>
+                      <h3 className="font-heading font-black text-white text-lg leading-tight mb-1">{p.name}</h3>
+                      <div className="text-white/70 text-xs">{p.target_animal}</div>
+                    </div>
+                    <span className="absolute top-4 right-4 bg-gold-600 text-white text-xs font-bold px-3 py-1 rounded-full z-10 shadow-md">{p.weight_kg} KG</span>
                   </div>
                   <div className="p-6">
                     <p className="text-gray-600 text-sm leading-relaxed mb-5 line-clamp-3">{p.description}</p>
@@ -143,9 +151,14 @@ export function ProductDetailPage() {
           {/* Product Info */}
           <div>
             <div className="card overflow-visible mb-6">
-              <div className="bg-gradient-to-br from-green-900 to-green-700 p-12 text-center rounded-t-2xl">
-                <div className="text-8xl mb-4">{product.emoji}</div>
-                <span className="bg-gold-600 text-white font-bold px-5 py-2 rounded-full">{product.weight_kg} KG</span>
+              <div className="relative h-64 overflow-hidden rounded-t-2xl flex items-center justify-center">
+                <img 
+                  src={product.category.includes('Dairy') ? '/images/dairy_feed.jpg' : '/images/poultry_feed.jpg'} 
+                  alt={product.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-green-950/80 via-transparent to-transparent" />
+                <span className="absolute bottom-4 right-4 bg-gold-600 text-white font-bold px-5 py-2 rounded-full z-10 shadow-lg">{product.weight_kg} KG</span>
               </div>
               <div className="p-8">
                 <span className="bg-green-100 text-green-800 text-xs font-bold px-3 py-1.5 rounded-full">{product.category}</span>

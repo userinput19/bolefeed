@@ -68,7 +68,7 @@
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #2D7A47; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #404552; border-radius: 3px; }
 
 .border-l-3 { border-left-width: 3px; }
 .border-l-gold-500 { border-left-color: #F0B429; }

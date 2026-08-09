@@ -5,24 +5,24 @@ export default {
     extend: {
       colors: {
         green: {
-          950: '#0a2016',
-          900: '#1B4D2E',
-          800: '#245f38',
-          700: '#2D7A47',
-          600: '#3a9458',
-          500: '#4CAF50',
-          400: '#6ec96f',
-          100: '#e8f5e9',
-          50:  '#f1faf1',
+          950: '#111317', // Very dark slate/charcoal
+          900: '#1E2127', // Rich charcoal grey
+          800: '#2D313A', // Dark grey
+          700: '#404552', // Medium dark grey
+          600: '#5A6172', // Slate grey
+          500: '#788296', // Medium slate
+          400: '#9FB0C7', // Light slate
+          100: '#E4E9F2', // Very light grey/blue
+          50:  '#F1F5F9', // Off-white cool grey
         },
         gold: {
-          900: '#7a5500',
-          700: '#C8920A',
-          500: '#F0B429',
-          300: '#f7d070',
-          100: '#fef9e7',
+          900: '#8A6508',
+          700: '#D49B0C',
+          500: '#F5B014',
+          300: '#F9D16B',
+          100: '#FEF6DF',
         },
-        cream: '#F8F4E8',
+        cream: '#F4F5F7',
       },
       fontFamily: {
         heading: ['Montserrat', 'sans-serif'],

@@ -32,12 +32,11 @@ export default function HomePage() {
   return (
     <PublicLayout>
       {/* HERO */}
-      <section className="bg-gradient-to-br from-green-950 via-green-900 to-green-800 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{backgroundImage:'radial-gradient(circle at 70% 50%, #C8920A 0%, transparent 60%)'}} />
+      <section className="relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: "linear-gradient(rgba(17, 19, 23, 0.92), rgba(30, 33, 39, 0.85)), url('/images/hero_bg.jpg')" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center relative">
           <div className="fade-in">
             <div className="inline-flex items-center gap-2 bg-gold-600/20 border border-gold-500/40 text-gold-300 text-xs font-bold px-4 py-2 rounded-full mb-6 tracking-wider uppercase">
-              🌿 {t('companyName')} {t('companySubtitle')}
+              🌾 {t('companyName')} {t('companySubtitle')}
             </div>
             <h1 className="font-heading font-black text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">
               {t('heroTitle')}
@@ -101,11 +100,19 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8 mb-10">
             {products.map(p => (
               <div key={p.id} className="card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className="bg-gradient-to-br from-green-900 to-green-700 p-8 text-center">
-                  <div className="text-6xl mb-3">{p.emoji}</div>
-                  <h3 className="font-heading font-black text-white text-lg mb-1">{p.name}</h3>
-                  <div className="text-white/70 text-sm mb-3">{p.target_animal}</div>
-                  <span className="bg-gold-600 text-white text-sm font-bold px-4 py-1.5 rounded-full">{p.weight_kg} KG</span>
+                <div className="relative h-48 overflow-hidden flex items-center justify-center">
+                  <img 
+                    src={p.category.includes('Dairy') ? '/images/dairy_feed.jpg' : '/images/poultry_feed.jpg'} 
+                    alt={p.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-green-950 via-green-950/40 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 text-left z-10">
+                    <span className="bg-gold-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-1.5 inline-block">{p.category}</span>
+                    <h3 className="font-heading font-black text-white text-lg leading-tight mb-1">{p.name}</h3>
+                    <div className="text-white/70 text-xs">{p.target_animal}</div>
+                  </div>
+                  <span className="absolute top-4 right-4 bg-gold-600 text-white text-xs font-bold px-3 py-1 rounded-full z-10 shadow-md">{p.weight_kg} KG</span>
                 </div>
                 <div className="p-6">
                   <div className="grid grid-cols-2 gap-2 mb-5">
