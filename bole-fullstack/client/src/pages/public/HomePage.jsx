@@ -149,17 +149,20 @@ export default function HomePage() {
             <p className="text-gray-500 max-w-xl mx-auto">Every bag of Bole Animal Feed is produced with precision and delivered fresh from our Addis Ababa facility.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {benefitsList.map(b => (
-              <div key={b.title} className="bg-white rounded-2xl p-7 shadow-sm hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 border border-gray-100 flex gap-5 items-start">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border ${b.color}`}>
-                  <b.icon size={22} />
+            {benefitsList.map(b => {
+              const Icon = b.icon;
+              return (
+                <div key={b.title} className="bg-white rounded-2xl p-7 shadow-sm hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 border border-gray-100 flex gap-5 items-start">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border ${b.color}`}>
+                    <Icon size={22} />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-black text-green-950 text-base mb-1.5">{b.title}</h3>
+                    <p className="text-gray-500 text-xs leading-relaxed">{b.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-heading font-black text-green-950 text-base mb-1.5">{b.title}</h3>
-                  <p className="text-gray-500 text-xs leading-relaxed">{b.desc}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
