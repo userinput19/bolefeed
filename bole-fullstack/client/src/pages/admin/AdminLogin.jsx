@@ -1,8 +1,8 @@
+import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import toast from 'react-hot-toast';
-import { Eye, EyeOff } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
           <div className="px-8 pb-8 text-center">
             <p className="text-xs text-gray-400 mb-2">Demo credentials:</p>
             <div className="flex gap-3 justify-center">
-              <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-lg font-mono">admin / bole2024</span>
+              <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-lg font-mono">natan / bole12345</span>
               <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-lg font-mono">staff / staff123</span>
             </div>
           </div>

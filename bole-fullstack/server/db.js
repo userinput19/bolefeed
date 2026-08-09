@@ -108,23 +108,47 @@ async function initDB() {
   }
 
   // Seed admin users
-  const adminExists = await db.users.findOne({ username: 'admin' });
-  if (!adminExists) {
-    await db.users.insert([
-      {
-        id: 1, name: 'Administrator', username: 'admin',
-        password: bcrypt.hashSync('bole2024', 10),
-        role: 'admin', phone: '+251939277772', email: 'admin@bolefeed.com',
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 2, name: 'Sales Staff', username: 'staff',
-        password: bcrypt.hashSync('staff123', 10),
-        role: 'staff', phone: '', email: 'staff@bolefeed.com',
-        created_at: new Date().toISOString()
-      }
-    ]);
-    await db.counters.update({ _id: 'users' }, { $set: { seq: 2 } }, { upsert: true });
+  const natanExists = await db.users.findOne({ username: 'natan' });
+  const oldAdminExists = await db.users.findOne({ username: 'admin' });
+
+  if (!natanExists) {
+    if (oldAdminExists) {
+      await db.users.update(
+        { _id: oldAdminExists._id },
+        {
+          $set: {
+            name: 'Administrator',
+            username: 'natan',
+            password: bcrypt.hashSync('bole12345', 10),
+            role: 'admin',
+            phone: '+251939277772',
+            email: 'admin@bolefeed.com',
+            updated_at: new Date().toISOString()
+          }
+        }
+      );
+    } else {
+      await db.users.insert([
+        {
+          id: 1, name: 'Administrator', username: 'natan',
+          password: bcrypt.hashSync('bole12345', 10),
+          role: 'admin', phone: '+251939277772', email: 'admin@bolefeed.com',
+          created_at: new Date().toISOString()
+        },
+        {
+          id: 2, name: 'Sales Staff', username: 'staff',
+          password: bcrypt.hashSync('staff123', 10),
+          role: 'staff', phone: '', email: 'staff@bolefeed.com',
+          created_at: new Date().toISOString()
+        }
+      ]);
+      await db.counters.update({ _id: 'users' }, { $set: { seq: 2 } }, { upsert: true });
+    }
+  } else {
+    await db.users.update(
+      { username: 'natan' },
+      { $set: { password: bcrypt.hashSync('bole12345', 10), role: 'admin' } }
+    );
   }
 
   // Seed products
