@@ -57,13 +57,7 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          <div className="px-8 pb-8 text-center">
-            <p className="text-xs text-gray-400 mb-2">Demo credentials:</p>
-            <div className="flex gap-3 justify-center">
-              <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-lg font-mono">natan / bole12345</span>
-              <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-lg font-mono">staff / staff123</span>
-            </div>
-          </div>
+
         </div>
 
         <p className="text-center text-white/40 text-sm mt-6">
